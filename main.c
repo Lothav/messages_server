@@ -25,8 +25,6 @@ int main(int argc, char** argv) {
     root = (message *) malloc(sizeof(message));
     end = (message *) malloc(sizeof(message));
     
-    
-    
 
     return (EXIT_SUCCESS);
 }
