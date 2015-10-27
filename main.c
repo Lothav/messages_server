@@ -23,16 +23,17 @@ typedef struct list_st{
     Message message;
 }List;
 
-void insertOnList(List *root, Message *message){
+void insertOnList(List *root, char* pair_id, char* order, char* msg){
 
     List *new;
     
     new = (List *) malloc(sizeof(List));
-    new->message.order = message->order;
-    new->message.pair_id = message->pair_id;
+    new->message.order = atoi(order);
+    new->message.pair_id = atoi(pair_id);
+    strcpy(new->message.message, msg);
     new->prox = NULL;
     
-    while(root->prox != NULL){    
+    while(root->prox != NULL){
         root = root->prox;
     }
     
@@ -41,32 +42,34 @@ void insertOnList(List *root, Message *message){
 
 int main(int argc, char** argv) {
     
-    List *root;
-    Message *message;
     int k, lot_number;
     char lot[11], msg[MAX];
-    char aux[11],aux2[11];
-    
+    char id[11],aux2[11];
+    List *root[50];
+       
     scanf("%d", &k);
     if( k < 1 || k > 1000 ){
         printf("\n k is out of bounds");
         return (EXIT_FAILURE);
     }
-    
-    root = (List *) malloc(sizeof(List));    
   
     scanf("%s", lot);
     while(lot != "-1"){
         scanf("%d", &lot_number);
-        scanf(" %[^;];%[^;];%[^\n]", aux, aux2, msg);
+        scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
         
         while(msg != "Fim"){
             
-           root->message.pair_id = atoi(aux);
-           root->message.order = atoi(aux2);
-           strcpy(root->message.message, msg);
-           scanf(" %[^;];%[^;];%[^\n]", aux, aux2, msg);
-        }  
+            if(root[atoi(id)] == NULL){
+          
+                root[atoi(id)] = (List *) malloc(sizeof(List));                
+                root[atoi(id)]->prox = NULL;
+            }
+ 
+           insertOnList(root[atoi(id)], id, aux2, msg);
+           scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
+        }
+        scanf("%s", lot);
     }
     
     
