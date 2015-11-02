@@ -36,22 +36,22 @@ void insertOnList(List *root, char* pair_id, char* order, char* msg){
     while(root->prox != NULL){
         root = root->prox;
     }
-    
     root->prox = new;
 }
 
-void sendMessages(List *root[50]){
-
+void sendMessages(List *root[]){
     
-    
+   // while(root[] != NULL){
+	printf("Par_%d:", root[0]->message.order);
+//    }
 }
 
 int main(int argc, char** argv) {
     
     int k, lot_number;
-    char lot[11], msg[MAX];
-    char id[11],aux2[11];
-    List *root[50];
+    char lot[11], str[MAX], msg[MAX];
+    char id[11],ord[11];
+    List *root[50]={NULL};
        
     scanf("%d", &k);
     if( k < 1 || k > 1000 ){
@@ -61,24 +61,36 @@ int main(int argc, char** argv) {
     scanf("%s", lot);
     while(lot != "-1"){
         scanf("%d", &lot_number);
-        scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
-        
-        while(msg != "Fim"){
+	
+	fflush(stdin);
+	fgets(msg,510,stdin);
+	fflush(stdin);
+        if(strcmp(msg,"Fim\n")==0) break;
+        sscanf(msg,"%d;%d;%[^\n]s",&id, &ord, msg);
+	
+        //scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
+	
+	
+        while(strcmp(lot, "-1\n") != 0){
+	    while(strcmp(str,"Fim\n") != 0){
             
-            if(root[atoi(id)] == NULL){
+		if(root[atoi(id)] == NULL){
           
-                root[atoi(id)] = (List *) malloc(sizeof(List));                
-                root[atoi(id)]->prox = NULL;
-            }
- 
-           insertOnList(root[atoi(id)], id, aux2, msg);
-	   sendMessages(root);
-           scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
-        }
-        scanf("%s", lot);
+		    root[atoi(id)] = (List *) malloc(sizeof(List));                
+		    root[atoi(id)]->prox = NULL;
+		}
+		
+		insertOnList(root[atoi(id)], id, ord, msg);
+		fflush(stdin);
+		fgets(str,510,stdin);
+		fflush(stdin);
+		sscanf(str,"%d;%d;%[^\n]s",&id, &ord, msg);
+	    }
+	    sendMessages(root);
+	    scanf("%s", lot);
+	}
+        
     }
-    
-    
     return (EXIT_SUCCESS);
 }
 
