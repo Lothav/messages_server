@@ -40,6 +40,12 @@ void insertOnList(List *root, char* pair_id, char* order, char* msg){
     root->prox = new;
 }
 
+void sendMessages(List *root[50]){
+
+    
+    
+}
+
 int main(int argc, char** argv) {
     
     int k, lot_number;
@@ -49,7 +55,6 @@ int main(int argc, char** argv) {
        
     scanf("%d", &k);
     if( k < 1 || k > 1000 ){
-        printf("\n k is out of bounds");
         return (EXIT_FAILURE);
     }
   
@@ -67,6 +72,7 @@ int main(int argc, char** argv) {
             }
  
            insertOnList(root[atoi(id)], id, aux2, msg);
+	   sendMessages(root);
            scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
         }
         scanf("%s", lot);
