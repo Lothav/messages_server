@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MIN 0 
+#define MIN 0
 #define MAX 500
 
 typedef struct message_st{
@@ -19,77 +19,131 @@ typedef struct message_st{
 } Message;
 
 typedef struct list_st{    
-    struct list_st *prox;
     Message message;
+    struct list_st *prox;
 }List;
 
-void insertOnList(List *root, char* pair_id, char* order, char* msg){
+typedef struct arr_st{
+    int pair_id;
+    int msg_sent_count;
+    List *list;
+    struct arr_st* prox;
+}Arr;
 
-    List *new;
+void insertOnList(Arr *root, int id, int order, char* msg){
     
-    new = (List *) malloc(sizeof(List));
-    new->message.order = atoi(order);
-    new->message.pair_id = atoi(pair_id);
-    strcpy(new->message.message, msg);
-    new->prox = NULL;
+    List *aux;
     
-    while(root->prox != NULL){
-        root = root->prox;
+    root->pair_id = id;
+    aux = root->list;
+
+    while(aux->prox != NULL){
+        aux = aux->prox;
     }
-    root->prox = new;
+    aux->message.order = order;
+    aux->message.pair_id = id;
+    strcpy(aux->message.message, msg);
+    aux->prox = (List *) malloc( sizeof(List) );
 }
 
-void sendMessages(List *root[]){
+
+Arr* queueing(Arr *root){
+   
+    Arr *queue, *head;
+    int id_count;
     
-   // while(root[] != NULL){
-	printf("Par_%d:", root[0]->message.order);
-//    }
+    head = (Arr *)malloc( sizeof(Arr) );
+    id_count = 0;
+    
+    while(id_count < 30){
+	while(root->prox != NULL){
+	    queue = head;
+	    while(queue->prox != NULL){
+		queue = queue->prox;
+	    }
+	    if(root->pair_id == id_count){
+		queue->pair_id = root->pair_id;
+		queue->list = (List *) malloc( sizeof(List) );
+		queue->list->message.order = root->list->message.order;
+		strcpy(queue->list->message.message, root->list->message.message);
+		queue->prox = (Arr *) malloc( sizeof(Arr) ); 
+		queue = queue->prox;
+	    }
+	    root = root->prox;
+	}
+	id_count++;
+    }
+    return head;
+}
+
+
+void sendMessages(List *list, char* lot, int lote_number){
+    
+    //while(root != NULL){
+	printf("%s_%d:\n", lot, lote_number);
+    //}
 }
 
 int main(int argc, char** argv) {
     
     int k, lot_number;
     char lot[11], str[MAX], msg[MAX];
-    char id[11],ord[11];
-    List *root[50]={NULL};
-       
+    int id, ord, is_new, head_c = 0;
+    Arr *root, *head, *queue;
+    
+    root = NULL;
+    head = NULL;
+    
     scanf("%d", &k);
     if( k < 1 || k > 1000 ){
         return (EXIT_FAILURE);
     }
-  
+
+    head = (Arr *) malloc(sizeof(Arr));
+    
     scanf("%s", lot);
     while(lot != "-1"){
-        scanf("%d", &lot_number);
 	
+        scanf("%d ", &lot_number);
+	
+	fgets(str, sizeof(str), stdin);
 	fflush(stdin);
-	fgets(msg,510,stdin);
-	fflush(stdin);
-        if(strcmp(msg,"Fim\n")==0) break;
-        sscanf(msg,"%d;%d;%[^\n]s",&id, &ord, msg);
-	
-        //scanf(" %[^;];%[^;];%[^\n]", id, aux2, msg);
-	
-	
+        if(strcmp(str,"Fim\n") == 0) break;
+        sscanf(str,"%d;%d;%[^\n]s", &id, &ord, msg);
+		
         while(strcmp(lot, "-1\n") != 0){
 	    while(strcmp(str,"Fim\n") != 0){
             
-		if(root[atoi(id)] == NULL){
-          
-		    root[atoi(id)] = (List *) malloc(sizeof(List));                
-		    root[atoi(id)]->prox = NULL;
+		is_new = 1;
+		root = head;
+		if(root->pair_id == id){
+		    is_new = 0;
 		}
 		
-		insertOnList(root[atoi(id)], id, ord, msg);
-		fflush(stdin);
-		fgets(str,510,stdin);
+		while(root->prox != NULL){
+		    if(root->pair_id == id){
+			is_new = 0;
+			break;
+		    }
+		    root = root->prox;
+		}
+		
+		if(is_new == 1){
+		    root->prox = (Arr *) malloc( sizeof(Arr) );
+		    root->list = (List *) malloc( sizeof(List) );
+		}
+		
+		insertOnList(root, id, ord, msg);
+		scanf(" ");
+		fgets(str, sizeof(str), stdin);
 		fflush(stdin);
 		sscanf(str,"%d;%d;%[^\n]s",&id, &ord, msg);
 	    }
-	    sendMessages(root);
+	   queue = queueing(root);
+	    
+	    //sendMessages(root->list, lot, lot_number);
 	    scanf("%s", lot);
-	}
-        
+	}     
     }
     return (EXIT_SUCCESS);
 }
