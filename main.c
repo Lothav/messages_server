@@ -31,6 +31,38 @@ typedef struct arr_st {
     Pair *pair_head, *pair_last;
 } PairsArr;
 
+
+/*
+
+ 
+10
+Lote 1
+3;2;Estou fazendo agora
+0;1;Ol´a, tudo bem com vocˆe?
+1;2;N˜ao
+1;1;Vocˆe vem jantar hoje?
+0;2;Tudo sim e vocˆe?
+1;3;Vou ter que trabalhar at´e mais tarde
+2;4;se vocˆe lembrar
+3;1;Conseguiu fazer o TP?
+3;3;Esta muito f´acil
+Fim
+Lote 2
+2;2;Vou
+2;3;leva na aula amanha
+0;3;Tudo bem tbm
+4;2;Parab´ens! Que dia vamos comemorar?
+2;1;Vai precisar da grana?
+4;1;Passei no vestibular!
+3;4;Esta mesmo
+Fim
+-1
+ 
+ 
+ */
+
+
+
 void insertMessages(Pair *pair, int id, int order, char* msg) {
 
     Pair *aux;
@@ -150,7 +182,7 @@ void printSends(PairsArr *root) {
 		    aux_msg = pair_root->msg_head->prox;
 		    while (aux_msg != NULL) {
 			if (aux_msg->order == b) {
-			    if (pair_root->last_msg <= lowest_msg) {
+			    if (pair_root->last_msg <= lowest_msg && pair_root->last_msg == aux_msg->order-1) {
 				printf("%d;%d;%s\n", a, b, aux_msg->message);
 				aux_msg->ant->prox = aux_msg->prox;
 				if (aux_msg->prox != NULL) {
@@ -210,7 +242,7 @@ int main(int argc, char** argv) {
     sscanf(str, "%d;%d;%[^\n]s", &id, &ord, msg);
     fflush(stdin);
 
-    while (k != -1) {
+    while (lot_number != -1) {
 	while (strcmp(str, "Fim\n") != 0) {
 
 	    auxP = root->pair_head;
@@ -241,10 +273,6 @@ int main(int argc, char** argv) {
 	printLists(root);
 	printSends(root);
 	printCounts(root);
-
-	fgets(str, sizeof (str), stdin);
-	sscanf(str, "%d", &k);
-	fflush(stdin);
 
 	fgets(str, sizeof (str), stdin);
 	sscanf(str, "%*[^0-9]%d", &lot_number);
