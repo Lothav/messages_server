@@ -35,7 +35,7 @@ void insertMessages(Pair *pair, int id, int order, char* msg) {
 
     Pair *aux;
 
-    if (pair->msg_head == NULL) {
+    if (pair->msg_head == NULL || pair->msg_head->prox == NULL) {
 	pair->msg_head = (Message *) malloc(sizeof (Message));
 	pair->msg_last = pair->msg_head;
 	pair->msg_head->pair_id = MAX;
@@ -59,7 +59,7 @@ void printLists(PairsArr *root) {
     Pair *pair_root;
     Message *aux_msg;
 
-    int a, has, b;
+    int a, has, b, high;
 
     pair_root = root->pair_head;
 
@@ -78,12 +78,24 @@ void printLists(PairsArr *root) {
 	}
 
 	if (has == 1) {
+	    high = MIN;
+	    
+	    aux_msg = pair_root->msg_head->prox;
+		while (aux_msg != NULL) {
+		    if(aux_msg->order > high){
+			high = aux_msg->order;
+		    }
+		    aux_msg = aux_msg->prox;
+		}
+	    
 	    printf("Par_%d:[", a);
 	    for (b = 0; b < 50; b++) {
+		
 		aux_msg = pair_root->msg_head;
+
 		while (aux_msg != NULL) {
 		    if (aux_msg->order == b) {
-			if (aux_msg->prox == NULL) {
+			if (aux_msg->order == high) {
 			    printf("(%d,%s)", b, aux_msg->message);
 			} else {
 			    printf("(%d,%s), ", b, aux_msg->message);
@@ -102,7 +114,7 @@ void printSends(PairsArr *root) {
     Pair *pair_root;
     Message *aux_msg, *swit, *loop;
 
-    int a, has, b, c, lowest_msg = MAX, low_order;
+    int a, has, b, c, lowest_msg, low_order;
 
     pair_root = root->pair_head;
 
@@ -114,47 +126,37 @@ void printSends(PairsArr *root) {
 	for (a = 0; a < 50; a++) {
 	    has = 0;
 
-	    pair_root = root->pair_head;
-
+	    pair_root = root->pair_head->prox;
+	    lowest_msg = MAX;
 	    while (pair_root->prox != NULL) {
-		low_order = MAX;
-		loop = pair_root->prox->msg_head;
-		while (loop->prox != NULL) {
-		    if (loop->order < low_order) {
-			low_order = loop->order;
-		    }
-		    loop = loop->prox;
-		}
-
-		if (pair_root->last_msg <= lowest_msg && low_order == pair_root->last_msg + 1) {
+		if (pair_root->last_msg < lowest_msg) {
 		    lowest_msg = pair_root->last_msg;
 		}
 		pair_root = pair_root->prox;
 	    }
 
-	    pair_root = root->pair_head;
+	    pair_root = root->pair_head->prox;
 
-	    while (pair_root->prox != NULL) {
+	    while (pair_root != NULL) {
 		if (pair_root->pair_id == a) {
 		    has = 1;
 		    break;
 		}
 		pair_root = pair_root->prox;
 	    }
-
+	    
 	    if (has == 1) {
 		for (b = 0; b < 50; b++) {
-		    aux_msg = pair_root->msg_head;
+		    aux_msg = pair_root->msg_head->prox;
 		    while (aux_msg != NULL) {
 			if (aux_msg->order == b) {
 			    if (pair_root->last_msg <= lowest_msg) {
-				printf("%d %d %s\n", a, b, aux_msg->message);
+				printf("%d;%d;%s\n", a, b, aux_msg->message);
 				aux_msg->ant->prox = aux_msg->prox;
 				if (aux_msg->prox != NULL) {
 				    aux_msg->prox->ant = aux_msg->ant;
 				}
 				pair_root->last_msg++;
-
 			    }
 			}
 			aux_msg = aux_msg->prox;
@@ -162,7 +164,6 @@ void printSends(PairsArr *root) {
 		}
 	    }
 	}
-	lowest_msg++;
     }
 }
 
