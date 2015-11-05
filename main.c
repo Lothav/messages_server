@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MIN 0
 #define MAX 500
 
 typedef struct message_st {
@@ -17,7 +16,6 @@ typedef struct message_st {
     int pair_id;
     int order;
     struct message_st *prox;
-   // struct message_st *ant;
 } Message;
 
 typedef struct pair_st {
@@ -33,6 +31,9 @@ typedef struct cont_st {
 
 Conv* createConvMid(Conv* conv, int pair_id){
 
+    //criamos uma nova conversa e a inserimos
+    //logo após à 'conv' recebida como parâmetro
+    
     Conv * aux;
     aux = (Conv *) malloc(sizeof(Conv));
     aux->pair_id = pair_id;
@@ -61,7 +62,9 @@ Conv* selectConv(Container* root, int pair_id){
             //ou seja, como temos um container de conversas ordenado crescente,
             //ao percorremos ele e chegamos a uma conversa com 'pair_id' maior,
             //o que queremos não existe e necessitamos inseri-lo no meio da lista. 
-            //Dessa meneira facilitará a inserção.    
+            //Dessa meneira facilitará a inserção.
+            
+            //o método abaixo cria e já retorna a 'conv' nova ordenada
             return createConvMid(aux, pair_id);        
         }
         aux = aux->prox;
@@ -144,6 +147,33 @@ void insOnConv(Conv* conv, int ord, char* msg){
     conv->msg_last = aux;
 }
 
+void sendMessages(Container *root){
+
+    // As prioridade ao enviar as mensagens são:
+    //   1 -> Quantidade de mensagens enviadas pelo par.
+    // caso empate:  
+    //   2 -> ID do par
+    
+    Conv* aux;
+    
+    aux = root->conv_head->prox;
+    
+    while(aux != NULL){
+        
+        
+    
+    }
+    
+    
+    
+    
+    
+    
+    
+
+}
+
+
 
 int main(int argc, char** argv) {
 
@@ -170,33 +200,48 @@ int main(int argc, char** argv) {
     fgets(str, sizeof (str), stdin);
     sscanf(str, "%d;%d;%[^\n]s", &pair_id, &ord, msg);
     fflush(stdin);
-    //  --- ---- ----
+    //  --- ---- ---- --- ---- --- ----
     
     while (lot_number != -1) {
 	while (strcmp(str, "Fim\n") != 0) {
 
-	    //primeiro selecionamos a conversa
+            // >>>>>>>> Recebendo Cada Mensagem do Lote <<<<<<
+            
+	    // - Primeiro, selecionamos a conversa (Conv)
             conv = selectConv(root, pair_id);
-            //agora inserimos a mesagem 'msg' na conversa
+            // - Agora inserimos a mesagem 'msg' na conversa
             insOnConv(conv, ord, msg);
+            
             
 	    fgets(str, sizeof (str), stdin);
 	    sscanf(str, "%d;%d;%[^\n]s", &pair_id, &ord, msg);
 	    fflush(stdin);
 	}
+        
+        // aqui já temos o Container 'root' com todas
+        // as Conversas ordenadas por 'pair_id' com
+        // todas as mensagens, dentro de cada, ordenadas
+        // por 'ord'.
+        
+        
+        // >>>>>>>> Enviando as Mensagens do Lote <<<<<<
+       // sendMessages(root);
 
+        
+        
+        
 	fgets(str, sizeof (str), stdin);
 	sscanf(str, "%*[^0-9]%d", &lot_number);
 	fflush(stdin);
         
         // essa condição abaixo está longe de 
         // ser a mais elegante. Porém tive MUITOS
-        // problemas com esse regex/scanf do C
+        // problemas com regex/scanf do C
         // que resolvi deixar assim, pois, também não é o foco.
         if(str[0] == '-' && str[1] == '1'){
            break; 
         }
-        //caso passe na condição acima,
+        //caso não passe na condição acima,
         //continua a leitura de um novo bloco de mensagens.
 	fgets(str, sizeof (str), stdin);
 	sscanf(str, "%d;%d;%[^\n]s", &pair_id, &ord, msg);
