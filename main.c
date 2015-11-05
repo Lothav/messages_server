@@ -17,7 +17,7 @@ typedef struct message_st {
     int pair_id;
     int order;
     struct message_st *prox;
-    struct message_st *ant;
+   // struct message_st *ant;
 } Message;
 
 typedef struct pair_st {
@@ -25,11 +25,220 @@ typedef struct pair_st {
     int last_msg;
     Message *msg_head, *msg_last;
     struct pair_st *prox;
-} Pair;
+} Conv;
 
-typedef struct arr_st {
-    Pair *pair_head, *pair_last;
-} PairsArr;
+typedef struct cont_st {
+    Conv *conv_head, *conv_last;
+} Container;
+
+Conv* createConvMid(Conv* conv, int pair_id){
+
+    Conv * aux;
+    aux = (Conv *) malloc(sizeof(Conv));
+    aux->pair_id = pair_id;
+    
+    aux->prox = conv->prox;
+    conv->prox = aux;
+    
+    return aux;
+}
+
+Conv* selectConv(Container* root, int pair_id){
+
+    Conv *aux;
+    int id;
+    
+    //vamos pegar um 'aux' com a primeira conversa após a cabeça
+    aux = root->conv_head->prox;
+    
+    //verifica já existe a conversa entre os pares 'pair_id'.
+    while(aux != NULL){
+        
+        if(aux->pair_id == pair_id){
+            return aux;
+        } 
+        if(aux->prox != NULL && aux->prox->pair_id > pair_id){
+            //ou seja, como temos um container de conversas ordenado crescente,
+            //ao percorremos ele e chegamos a uma conversa com 'pair_id' maior,
+            //o que queremos não existe e necessitamos inseri-lo no meio da lista. 
+            //Dessa meneira facilitará a inserção.    
+            return createConvMid(aux, pair_id);        
+        }
+        aux = aux->prox;
+    }
+    
+    //se o programa chegar aqui, é porque não existe e ela deve ser criada no final.
+    //logo devemos criar uma nova no final e retorna-la.
+    
+    //utilizarei o próprio 'aux' que não será mais utilizado
+    //alocamos memória para ele
+    aux = (Conv *) malloc(sizeof(Conv));
+    //falamos que ele é o último elemento da lista
+    aux->pair_id = pair_id;
+    root->conv_last->prox = aux;
+    root->conv_last = aux;
+    //e então o retornamos
+    return aux;
+}
+
+
+void insOnConvMid(Message* msg, int ord, char* message, int pair_id){
+
+    //criamos a nova célula Mensagem
+    Message * aux;
+    aux = (Message *) malloc(sizeof(Message));
+    //e atribuímos os dados à ela
+    aux->order = ord;
+    strcpy(aux->message, message);
+    aux->pair_id = pair_id;
+    
+    //fazemos então a troca de referências para
+    // "inserirmos" a nova mesagem na lista
+    aux->prox = msg->prox;
+    msg->prox = aux;
+}
+
+void insOnConv(Conv* conv, int ord, char* msg){
+    
+    //Devemos aqui encontrar onde encaixar a mesagem
+    //de forma que todas fiquem ordenadas pela ordem 'ord'
+    
+    Message* aux;
+    
+    if(conv->msg_head == NULL){
+        //aloca posição para o header da mensagem caso 
+        //ela não exista.
+        conv->msg_head = (Message *) malloc(sizeof(Message));
+        conv->msg_head->order = MAX;
+        conv->msg_last = conv->msg_head;
+    }
+    
+    //aqui começamos da cabeça da lista, pois,
+    //sempre compararemos com o prox,
+    //ficando mais fácil assim inserir o item já ordenado.
+    aux = conv->msg_head;
+    
+    //então verificamos se a célula mensagem 
+    //deve ser inserida no meio da lista.
+    while(aux != NULL){
+        if(aux->prox != NULL && aux->prox->order > ord){
+            insOnConvMid(aux, ord, msg, conv->pair_id);
+            //matamos a função aqui com um 'return'
+            //pois já fora inserido a mensagem na lista
+            return;
+        }
+        aux = aux->prox;
+    }
+
+    //caso não entre no 'if' acima, a mensagem tem maior ordem
+    //logo deverá ser inserida no final da lista.
+    
+    //atribuindo os valores:
+    aux = (Message *) malloc(sizeof(Message));
+    strcpy(aux->message, msg);
+    aux->order = ord;
+    aux->pair_id = conv->pair_id;
+    
+    //"inserindo" no final da lista:
+    conv->msg_last->prox = aux;
+    conv->msg_last = aux;
+}
+
+
+int main(int argc, char** argv) {
+
+    int lot_number, k, pair_id, ord;
+    char str[MAX], msg[MAX];
+    Container *root;
+    Conv *conv;
+
+    root = (Container *) malloc(sizeof (Container));
+
+    root->conv_head = (Conv *) malloc(sizeof (Conv));
+    root->conv_last = root->conv_head;
+    root->conv_last->pair_id = MAX;
+
+    // --- blocos de leitura de stdin ---
+    fgets(str, sizeof (str), stdin);
+    sscanf(str, "%d", &k);
+    fflush(stdin);
+
+    fgets(str, sizeof (str), stdin);
+    sscanf(str, "%*[^0-9]%d", &lot_number);
+    fflush(stdin);
+
+    fgets(str, sizeof (str), stdin);
+    sscanf(str, "%d;%d;%[^\n]s", &pair_id, &ord, msg);
+    fflush(stdin);
+    //  --- ---- ----
+    
+    while (lot_number != -1) {
+	while (strcmp(str, "Fim\n") != 0) {
+
+	    //primeiro selecionamos a conversa
+            conv = selectConv(root, pair_id);
+            //agora inserimos a mesagem 'msg' na conversa
+            insOnConv(conv, ord, msg);
+            
+	    fgets(str, sizeof (str), stdin);
+	    sscanf(str, "%d;%d;%[^\n]s", &pair_id, &ord, msg);
+	    fflush(stdin);
+	}
+
+	fgets(str, sizeof (str), stdin);
+	sscanf(str, "%*[^0-9]%d", &lot_number);
+	fflush(stdin);
+        
+        // essa condição abaixo está longe de 
+        // ser a mais elegante. Porém tive MUITOS
+        // problemas com esse regex/scanf do C
+        // que resolvi deixar assim, pois, também não é o foco.
+        if(str[0] == '-' && str[1] == '1'){
+           break; 
+        }
+        //caso passe na condição acima,
+        //continua a leitura de um novo bloco de mensagens.
+	fgets(str, sizeof (str), stdin);
+	sscanf(str, "%d;%d;%[^\n]s", &pair_id, &ord, msg);
+	fflush(stdin);
+    }
+    return (EXIT_SUCCESS);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -63,7 +272,7 @@ Fim
 
 
 
-void insertMessages(Pair *pair, int id, int order, char* msg) {
+/*void insertMessages(Pair *pair, int id, int order, char* msg) {
 
     Pair *aux;
 
@@ -283,4 +492,4 @@ int main(int argc, char** argv) {
 	fflush(stdin);
     }
     return (EXIT_SUCCESS);
-}
+}*/
