@@ -296,6 +296,23 @@ void printLists(Container* root) {
     }
 }
 
+void printCounts(Container* root){
+
+    // Imprime os contadores como 
+    // especificado no TP
+    
+    Conv *aux;
+    
+    aux = root->conv_head->prox;
+    
+    printf("Contadores:\n");
+    
+    while(aux != NULL){
+	printf("Par_%d:%d\n", aux->pair_id, aux->last_msg);
+	aux = aux->prox;
+    }
+}
+
 int main(int argc, char** argv) {
 
     int lot_number, k, pair_id, ord;
@@ -355,6 +372,8 @@ int main(int argc, char** argv) {
 	printLists(root);
 	//  - envia as mensagens seguindo às ordens de prioridade.
 	sendMessages(root);
+	//  - mostra a quantidade de mensage de cada par
+	printCounts(root);
 
 
 
