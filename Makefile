@@ -49,6 +49,9 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 
+chat: main.c functions.c header.h
+	gcc -o chat main.c functions.c -I.
+
 
 # build
 build: .build-post

@@ -10,9 +10,7 @@
 
 #define MAX 500
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+
 
 
     //  --------- TADS ----------- 
@@ -84,9 +82,6 @@ extern "C" {
     // Desaloca conversa a partir do k.
     void desalocateConv(Container* root, int k);  
 
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* HEADER_H */
 
