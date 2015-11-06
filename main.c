@@ -21,6 +21,7 @@ typedef struct message_st {
 typedef struct pair_st {
     int pair_id;
     int last_msg;
+    int k;
     Message *msg_head, *msg_last;
     struct pair_st *prox;
 } Conv;
@@ -84,6 +85,8 @@ Conv* selectConv(Container* root, int pair_id) {
     aux->msg_head = NULL;
     aux->msg_last = aux->msg_head;
     aux->last_msg = 0;
+    aux->k = 0;
+    
     //e então o retornamos
     return aux;
 }
@@ -118,6 +121,9 @@ void insOnConv(Conv* conv, int ord, char* msg) {
 	conv->msg_head->order = MAX;
 	conv->msg_last = conv->msg_head;
     }
+    
+    // zeramos o k da conversa pois ela trocou uma mensagem
+    conv->k = 0;
 
     //aqui começamos da cabeça da lista, pois,
     //sempre compararemos com o prox,
@@ -313,6 +319,42 @@ void printCounts(Container* root){
     }
 }
 
+
+void addKonConvs(Container* root){
+
+    // adiciona 1 à todos os k's
+    
+    Conv *k_count;
+    k_count = root->conv_head->prox;
+    while(k_count != NULL){
+	k_count->k++;    
+	k_count = k_count->prox;
+    }
+}
+
+void desalocateConv(Container* root, int k){
+    
+    Conv *aux, *ant;
+    
+    aux = root->conv_head->prox;
+    ant = root->conv_head;
+    
+    while(aux != NULL){
+	// o k da conversa atingiu o k informado
+	if(aux->k == k){
+	    ant->prox = aux->prox;
+	    // após 'pularmos' o aux, damos um free nele:
+	    free(aux);
+	}
+	// salva o aux como 'ant' para podermos 'pular'
+	// o 'aux' quando encontrado o que tenha k igual.
+	ant = aux;
+	aux = aux->prox;
+    }
+}
+
+
+
 int main(int argc, char** argv) {
 
     int lot_number, k, pair_id, ord;
@@ -329,11 +371,16 @@ int main(int argc, char** argv) {
     root->conv_head = (Conv *) malloc(sizeof (Conv));
     root->conv_last = root->conv_head;
     root->conv_last->pair_id = MAX;
+    root->conv_last->prox = NULL;
 
     // ---- blocos de leitura de stdin -----
     fgets(str, sizeof (str), stdin);
     sscanf(str, "%d", &k);
     fflush(stdin);
+    
+    if(k < 1 || k > 1000){
+	return (EXIT_FAILURE);
+    }
 
     fgets(str, sizeof (str), stdin);
     sscanf(str, "%*[^0-9]%d", &lot_number);
@@ -346,6 +393,13 @@ int main(int argc, char** argv) {
 
     while (lot_number != -1) {
 	while (strcmp(str, "Fim\n") != 0) {
+	    
+	    // Primeira ação do loop:
+	    //  - somar k em 1 em todas às conversas.
+	    // Aquelas que receberem uma mensagem terão
+	    // seu k zerado.
+	    addKonConvs(root);
+	    
 
 	    // >>>>>>>> Recebendo Cada Mensagem do Lote <<<<<<
 
@@ -365,6 +419,10 @@ int main(int argc, char** argv) {
 	// todas as mensagens, dentro de cada, ordenadas
 	// por sua ordem 'ord'.
 
+	
+	// Desalocando Conversa caso seu k chegue no k informado
+	desalocateConv(root, k);
+	
 
 	// >>>>>>>> Enviando as Mensagens do Lote <<<<<<
 
@@ -389,7 +447,8 @@ int main(int argc, char** argv) {
 	// essa condição abaixo está longe de 
 	// ser a mais elegante. Porém tive MUITOS
 	// problemas com regex/scanf do C
-	// que resolvi deixar assim, pois, também não é o foco.
+	// que resolvi deixar assim, pois, também 
+	// acredito não ser o foco.
 	if (str[0] == '-' && str[1] == '1') {
 	    break;
 	}
