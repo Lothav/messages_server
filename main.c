@@ -172,7 +172,7 @@ int getMinMens(Container *root){
 }
 
 
-void sendMessages(Container *root, int total_msgs) {
+void sendMessages(Container *root) {
 
     // As prioridade ao enviar as mensagens são:
     //   1 -> Quantidade de mensagens enviadas pelo par.
@@ -181,8 +181,6 @@ void sendMessages(Container *root, int total_msgs) {
 
     Conv* aux, *find_min_answ;
     Message* to_send;
-
-    int a;
 
     // min_answ representa a quantidade de envios
     // do par que trocou menos mensagens.
@@ -194,7 +192,6 @@ void sendMessages(Container *root, int total_msgs) {
     
     int re_min_answ = 1;
 
-    for (a = 0; a < total_msgs; a++) {
 	
 	// percorrendo as conversas:
 	aux = root->conv_head->prox;
@@ -236,17 +233,15 @@ void sendMessages(Container *root, int total_msgs) {
 		aux = aux->prox;
 	    }
 	}
-    }
+  
 }
 
 
-int printListsAndCount(Container* root){
+void printLists(Container* root){
 
     Conv* aux_conv;
     Message* aux_msg;
-    
-    int total_mens = 0;
-    
+        
     aux_conv = root->conv_head->prox;
     
     printf("Listas:\n");
@@ -261,24 +256,21 @@ int printListsAndCount(Container* root){
 	    
 	    if(aux_msg->prox != NULL){
 		printf("(%d,%s),", aux_msg->order, aux_msg->message);
-		total_mens++;
 	    }else{
 		printf("(%d,%s)", aux_msg->order, aux_msg->message);
-		total_mens++;
 	    }
 	    aux_msg = aux_msg->prox;
 	}
 	printf("]\n");
 	aux_conv = aux_conv->prox;
     }
-    return total_mens;
 }
 
 
 
 int main(int argc, char** argv) {
 
-    int lot_number, k, pair_id, ord, total_msgs;
+    int lot_number, k, pair_id, ord;
     char str[MAX], msg[MAX];
     Container *root;
     Conv *conv;
@@ -326,8 +318,8 @@ int main(int argc, char** argv) {
         
         
         // >>>>>>>> Enviando as Mensagens do Lote <<<<<<
-	total_msgs = printListsAndCount(root);
-        sendMessages(root, total_msgs);
+	printLists(root);
+        sendMessages(root);
 
         
         
