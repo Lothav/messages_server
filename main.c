@@ -86,7 +86,7 @@ Conv* selectConv(Container* root, int pair_id) {
     aux->msg_last = aux->msg_head;
     aux->last_msg = 0;
     aux->k = 0;
-    
+
     //e então o retornamos
     return aux;
 }
@@ -121,7 +121,7 @@ void insOnConv(Conv* conv, int ord, char* msg) {
 	conv->msg_head->order = MAX;
 	conv->msg_last = conv->msg_head;
     }
-    
+
     // zeramos o k da conversa pois ela trocou uma mensagem
     conv->k = 0;
 
@@ -225,7 +225,7 @@ void sendMessages(Container *root) {
 	// e se a quantidade de mensagens enviadas pela conversa for a menor
 	// ela é enviada.
 
-	if (	// Se
+	if (// Se
 		// a conversa não está vazia e
 		to_send != NULL &&
 		// e a ordem da primeira mensagem da conversa é igual
@@ -234,7 +234,7 @@ void sendMessages(Container *root) {
 		// a quantidade de mensagens enviadas pela conversa condiz com
 		// o 'min_answ'
 		min_answ == aux->last_msg) {
-	    
+
 	    // imprime os dados da mensagem na tela
 	    printf("%d;%d;%s\n", to_send->pair_id, to_send->order, to_send->message);
 	    // muda a cabeça da lista para a mensagem após a que foi enviada
@@ -252,7 +252,7 @@ void sendMessages(Container *root) {
 	    // pois pode ter uma conversa pra trás que será a próx
 	    // a enviar, logo :
 	    aux = root->conv_head->prox;
-	    
+
 	    // faço 'min_answ' = MAX para que ele encontre novamente o menor.
 	    min_answ = MAX;
 	    // ativo a verificação de 'min_answ'
@@ -302,46 +302,45 @@ void printLists(Container* root) {
     }
 }
 
-void printCounts(Container* root){
+void printCounts(Container* root) {
 
     // Imprime os contadores como 
     // especificado no TP
-    
+
     Conv *aux;
-    
+
     aux = root->conv_head->prox;
-    
+
     printf("Contadores:\n");
-    
-    while(aux != NULL){
+
+    while (aux != NULL) {
 	printf("Par_%d:%d\n", aux->pair_id, aux->last_msg);
 	aux = aux->prox;
     }
 }
 
-
-void addKonConvs(Container* root){
+void addKonConvs(Container* root) {
 
     // adiciona 1 à todos os k's
-    
+
     Conv *k_count;
     k_count = root->conv_head->prox;
-    while(k_count != NULL){
-	k_count->k++;    
+    while (k_count != NULL) {
+	k_count->k++;
 	k_count = k_count->prox;
     }
 }
 
-void desalocateConv(Container* root, int k){
-    
+void desalocateConv(Container* root, int k) {
+
     Conv *aux, *ant;
-    
+
     aux = root->conv_head->prox;
     ant = root->conv_head;
-    
-    while(aux != NULL){
+
+    while (aux != NULL) {
 	// o k da conversa atingiu o k informado
-	if(aux->k == k){
+	if (aux->k == k) {
 	    ant->prox = aux->prox;
 	    // após 'pularmos' o aux, damos um free nele:
 	    free(aux);
@@ -352,8 +351,6 @@ void desalocateConv(Container* root, int k){
 	aux = aux->prox;
     }
 }
-
-
 
 int main(int argc, char** argv) {
 
@@ -377,8 +374,8 @@ int main(int argc, char** argv) {
     fgets(str, sizeof (str), stdin);
     sscanf(str, "%d", &k);
     fflush(stdin);
-    
-    if(k < 1 || k > 1000){
+
+    if (k < 1 || k > 1000) {
 	return (EXIT_FAILURE);
     }
 
@@ -392,14 +389,14 @@ int main(int argc, char** argv) {
     //  --- ---- ---- --- ---- --- ----
 
     while (lot_number != -1) {
+
+	// Primeira ação do loop:
+	//  - somar k em 1 em todas às conversas.
+	// Aquelas que receberem uma mensagem terão
+	// seu k zerado.
+	addKonConvs(root);
+
 	while (strcmp(str, "Fim\n") != 0) {
-	    
-	    // Primeira ação do loop:
-	    //  - somar k em 1 em todas às conversas.
-	    // Aquelas que receberem uma mensagem terão
-	    // seu k zerado.
-	    addKonConvs(root);
-	    
 
 	    // >>>>>>>> Recebendo Cada Mensagem do Lote <<<<<<
 
@@ -419,10 +416,10 @@ int main(int argc, char** argv) {
 	// todas as mensagens, dentro de cada, ordenadas
 	// por sua ordem 'ord'.
 
-	
+
 	// Desalocando Conversa caso seu k chegue no k informado
 	desalocateConv(root, k);
-	
+
 
 	// >>>>>>>> Enviando as Mensagens do Lote <<<<<<
 
@@ -460,36 +457,3 @@ int main(int argc, char** argv) {
     }
     return (EXIT_SUCCESS);
 }
-
-
-
-
-
-/*
-
- 
-10
-Lote 1
-3;2;Estou fazendo agora
-0;1;Ol´a, tudo bem com vocˆe?
-1;2;N˜ao
-1;1;Vocˆe vem jantar hoje?
-0;2;Tudo sim e vocˆe?
-1;3;Vou ter que trabalhar at´e mais tarde
-2;4;se vocˆe lembrar
-3;1;Conseguiu fazer o TP?
-3;3;Esta muito f´acil
-Fim
-Lote 2
-2;2;Vou
-2;3;leva na aula amanha
-0;3;Tudo bem tbm
-4;2;Parab´ens! Que dia vamos comemorar?
-2;1;Vai precisar da grana?
-4;1;Passei no vestibular!
-3;4;Esta mesmo
-Fim
--1
- 
- 
- */
