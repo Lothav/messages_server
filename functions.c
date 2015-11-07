@@ -12,10 +12,14 @@ Conv* createConvMid(Conv* conv, int pair_id) {
     Conv * aux;
     aux = (Conv *) malloc(sizeof (Conv));
     aux->pair_id = pair_id;
+    aux->last_msg = 0;
 
     aux->prox = conv->prox;
     conv->prox = aux;
-
+    
+    aux->msg_head = NULL;
+    aux->msg_last = aux->msg_head;
+    
     return aux;
 }
 
@@ -94,6 +98,7 @@ void insOnConv(Conv* conv, int ord, char* msg) {
 	conv->msg_head = (Message *) malloc(sizeof (Message));
 	conv->msg_head->order = MAX;
 	conv->msg_last = conv->msg_head;
+	conv->msg_head->prox = NULL;
     }
 
     // zeramos o k da conversa pois ela trocou uma mensagem

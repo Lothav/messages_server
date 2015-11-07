@@ -1,1 +1,6 @@
 .dep.inc
+build/
+dist/
+nbproject/
+TP2-AEDS2-LuizO.zip
+.~lock.Documentacao.odt#

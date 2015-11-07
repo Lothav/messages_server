@@ -85,6 +85,8 @@ int main(int argc, char** argv) {
 
 	// >>>>>>>> Enviando as Mensagens do Lote <<<<<<
 
+	//  - número do Lote
+	printf("Lote_%d:\n", lot_number);
 	//  - mostra as listas na tela como especificado.
 	printLists(root);
 	//  - envia as mensagens seguindo às ordens de prioridade.
